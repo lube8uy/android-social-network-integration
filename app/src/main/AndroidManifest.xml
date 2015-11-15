@@ -37,13 +37,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".TimelineActivity"
-            android:label="@string/title_activity_twitter" >
-        </activity>
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="7364c3cdea5cf10d6987227e5ead48d044d1e6ce" />
     </application>
 
 </manifest>

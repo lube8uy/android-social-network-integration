@@ -22,13 +22,7 @@ import java.util.List;
 
 import towerhousestudio.com.socialnetworksintegration.model.User;
 
-public class MembersAreaActivity extends AppCompatActivity   implements
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        View.OnClickListener {
-
-    /* Client used to interact with Google APIs. */
-    private GoogleApiClient mGoogleApiClient;
+public class MembersAreaActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,29 +35,6 @@ public class MembersAreaActivity extends AppCompatActivity   implements
         EditText emailText = (EditText) view.findViewById(R.id.member_email);
         emailText.setText(currentUser.getEmail());
         setLogoutButton();
-        setTwitterButton();
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(Plus.API)
-                .addScope(new Scope(Scopes.PROFILE))
-                .addScope(new Scope(Scopes.EMAIL))
-                .build();
-        mGoogleApiClient.connect();
-    }
-
-    protected void setTwitterButton() {
-        View view = this.findViewById(android.R.id.content);
-        Button t = (Button) view.findViewById(R.id.twitter);
-        //final LoginActivity myContext = this;
-        t.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent tw = new Intent(MembersAreaActivity.this, TimelineActivity.class);
-                startActivity(tw);
-            }
-        });
     }
 
     protected void setLogoutButton() {
@@ -74,14 +45,6 @@ public class MembersAreaActivity extends AppCompatActivity   implements
             @Override public void onClick(View v) {
                 //Facebook
                 LoginManager.getInstance().logOut();
-
-                // Clear the default account so that GoogleApiClient will not automatically
-                // connect in the future.
-                if (MembersAreaActivity.this.mGoogleApiClient.isConnected()) {
-                    Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
-                    mGoogleApiClient.disconnect();
-                }
-
                 Intent loginArea = new Intent(MembersAreaActivity.this, LoginActivity.class);
                 startActivity(loginArea);
             }
@@ -108,37 +71,5 @@ public class MembersAreaActivity extends AppCompatActivity   implements
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mGoogleApiClient.disconnect();
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onClick(View v) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-
     }
 }

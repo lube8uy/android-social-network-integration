@@ -71,13 +71,6 @@
                 android:background="@null"
                 android:src="@mipmap/ic_facebook" />
 
-            <com.google.android.gms.common.SignInButton
-                android:id="@+id/gplus_login_button"
-                android:layout_width="0.0dip"
-                android:layout_height="fill_parent"
-                android:layout_weight="1.0" />
-
-
         </LinearLayout>
 
         <TextView android:id="@+id/link_signup"

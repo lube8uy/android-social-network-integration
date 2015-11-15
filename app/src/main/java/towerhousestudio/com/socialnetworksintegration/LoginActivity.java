@@ -30,12 +30,6 @@ import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginBehavior;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.Scopes;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.plus.Plus;
-import com.google.android.gms.plus.model.people.Person;
 
 import org.json.JSONObject;
 
@@ -46,22 +40,9 @@ import butterknife.ButterKnife;
 import butterknife.Bind;
 import towerhousestudio.com.socialnetworksintegration.model.User;
 
-public class LoginActivity extends AppCompatActivity  implements
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        View.OnClickListener {
+public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
-    private static final int REQUEST_SIGNUP = 0;
     private static CallbackManager callbackManager = null;
-    /* Is there a ConnectionResult resolution in progress? */
-    private boolean mIsResolving = false;
-    /* Should we automatically resolve ConnectionResults when possible? */
-    private boolean mShouldResolve = false;
-    /* Request code used to invoke sign in user interactions. */
-    private static final int RC_SIGN_IN = 0;
-
-    /* Client used to interact with Google APIs. */
-    private GoogleApiClient mGoogleApiClient;
 
     @Bind(R.id.input_email)
     EditText _emailText;
@@ -76,16 +57,6 @@ public class LoginActivity extends AppCompatActivity  implements
 
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getApplicationContext());
-        // Build GoogleApiClient with access to basic profile
-        // Build GoogleApiClient with access to basic profile
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(Plus.API)
-                .addScope(new Scope(Scopes.PROFILE))
-                .addScope(new Scope(Scopes.EMAIL))
-                .build();
-
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
 
@@ -145,9 +116,6 @@ public class LoginActivity extends AppCompatActivity  implements
                         // login error
                     }
                 });
-
-        //Gplus login
-        findViewById(R.id.gplus_login_button).setOnClickListener(this);
     }
 
     protected void checkFacebookSession() {
@@ -197,26 +165,6 @@ public class LoginActivity extends AppCompatActivity  implements
                         progressDialog.dismiss();
                     }
                 }, 3000);
-    }
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int responseCode, Intent data)
-    {
-        super.onActivityResult(requestCode, responseCode, data);
-        Log.d(TAG, "onActivityResult:" + requestCode + ":" + responseCode + ":" + data);
-
-        if (requestCode == RC_SIGN_IN) {
-            // If the error resolution was not successful we should not resolve further.
-            if (responseCode != RESULT_OK) {
-                mShouldResolve = false;
-            }
-
-            mIsResolving = false;
-            mGoogleApiClient.connect();
-        } else {
-            callbackManager.onActivityResult(requestCode, responseCode, data);
-        }
     }
 
     @Override
@@ -273,81 +221,5 @@ public class LoginActivity extends AppCompatActivity  implements
 
         // Logs 'install' and 'app activate' App Events.
         AppEventsLogger.activateApp(this);
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        // Could not connect to Google Play Services.  The user needs to select an account,
-        // grant permissions or resolve an error in order to sign in. Refer to the javadoc for
-        // ConnectionResult to see possible error codes.
-        Log.d(TAG, "onConnectionFailed:" + connectionResult);
-
-        if (!mIsResolving && mShouldResolve) {
-            if (connectionResult.hasResolution()) {
-                try {
-                    connectionResult.startResolutionForResult(this, RC_SIGN_IN);
-                    mIsResolving = true;
-                } catch (IntentSender.SendIntentException e) {
-                    Log.e(TAG, "Could not resolve ConnectionResult.", e);
-                    mIsResolving = false;
-                    mGoogleApiClient.connect();
-                }
-            } else {
-                // Could not resolve the connection result, show the user an
-                // error dialog.
-                //showErrorDialog(connectionResult);
-            }
-        } else {
-            // Show the signed-out UI
-            //showSignedOutUI();
-        }
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-        // onConnected indicates that an account was selected on the device, that the selected
-        // account has granted any requested permissions to our app and that we were able to
-        // establish a service connection to Google Play services.
-        Log.d(TAG, "onConnected:" + bundle);
-        mShouldResolve = false;
-
-        // Show the signed-in UI
-        if (Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null) {
-            Person currentPerson = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
-            String userid=currentPerson.getId(); //BY THIS CODE YOU CAN GET CURRENT LOGIN USER ID
-            Log.i("LoginActivity", "Gplus person id " + userid);
-        }
-    }
-
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.gplus_login_button) {
-            onSignInClicked();
-        }
-    }
-
-    private void onSignInClicked() {
-        // User clicked the sign-in button, so begin the sign-in process and automatically
-        // attempt to resolve any errors that occur.
-        mShouldResolve = true;
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mGoogleApiClient.disconnect();
     }
 }
